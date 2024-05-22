@@ -1,39 +1,41 @@
 package com.solanaexchange.project.entity;
 
 import jakarta.persistence.*;
-import jdk.jfr.Enabled;
+
+import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name="USERS")
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name="USER_ID")
     private String id;
-    @Column(name="email")
+    @Column(name="EMAIL")
     private String email;
-    @Column(name="password")
+    @Column(name="PASSWORD")
     private String password;
-    @Column(name="attr1")
-    private String attr1;
-    @Column(name="attr2")
-    private String attr2;
+    @Column(name="REFER_CODE")
+    private String referCode;
+    @Column(name="REFERRAL_POINTS")
+    private int referralPoints;
+
+    @Column(name="NO_OF_REFERS")
+    private int noOfRefers;
+
+    @OneToMany(mappedBy = "user", targetEntity = Wallet.class)
+    private List<Wallet> wallets;
 
     public Users() {
         super();
     }
 
-    public Users(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public Users(String id, String email, String password, String attr1, String attr2) {
+    public Users(String id, String email, String password, String referCode, int referralPoints, int noOfRefers) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.attr1 = attr1;
-        this.attr2 = attr2;
+        this.referCode = referCode;
+        this.referralPoints = referralPoints;
+        this.noOfRefers = noOfRefers;
     }
 
     public String getId() {
@@ -60,20 +62,36 @@ public class Users {
         this.password = password;
     }
 
-    public String getAttr1() {
-        return attr1;
+    public String getReferCode() {
+        return referCode;
     }
 
-    public void setAttr1(String attr1) {
-        this.attr1 = attr1;
+    public void setReferCode(String referCode) {
+        this.referCode = referCode;
     }
 
-    public String getAttr2() {
-        return attr2;
+    public double getReferralPoints() {
+        return referralPoints;
     }
 
-    public void setAttr2(String attr2) {
-        this.attr2 = attr2;
+    public void setReferralPoints(int referralPoints) {
+        this.referralPoints = referralPoints;
+    }
+
+    public double getNoOfRefers() {
+        return noOfRefers;
+    }
+
+    public void setNoOfRefers(int noOfRefers) {
+        this.noOfRefers = noOfRefers;
+    }
+
+    public List<Wallet> getWallets() {
+        return wallets;
+    }
+
+    public void setWallets(List<Wallet> wallets) {
+        this.wallets = wallets;
     }
 
     @Override
@@ -82,8 +100,9 @@ public class Users {
                 "id='" + id + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", attr1='" + attr1 + '\'' +
-                ", attr2='" + attr2 + '\'' +
+                ", referCode='" + referCode + '\'' +
+                ", referralPoints='" + referralPoints + '\'' +
+                ", noOfRefers='" + noOfRefers + '\'' +
                 '}';
     }
 }
