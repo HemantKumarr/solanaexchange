@@ -22,7 +22,7 @@ public class Users {
     @Column(name="NO_OF_REFERS")
     private int noOfRefers;
 
-    @OneToMany(mappedBy = "user", targetEntity = Wallet.class)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wallet> wallets;
 
     public Users() {

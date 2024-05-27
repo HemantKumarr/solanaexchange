@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 @Table(name="WALLET")
 public class Wallet {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="WALLET_ID")
-    private String id;
+    private int id;
     @Column(name="EMAIL")
     private String email;
     @Column(name="WALLET_NUMBER")
@@ -20,7 +20,9 @@ public class Wallet {
     @Column(name="WALLET_BALANCE")
     private String walletBalance;
 
+
     @ManyToOne
+    @JoinColumn(name = "USER_ID")
     private Users user;
     public Wallet() {
     }
@@ -33,11 +35,11 @@ public class Wallet {
         this.user = user;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

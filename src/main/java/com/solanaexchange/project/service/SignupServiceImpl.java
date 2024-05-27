@@ -6,6 +6,7 @@ import com.solanaexchange.project.entity.Users;
 import com.solanaexchange.project.entity.Wallet;
 import com.solanaexchange.project.model.UserRequestModel;
 import com.solanaexchange.project.model.UserResponseModel;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +50,8 @@ public class SignupServiceImpl implements SignupService {
         List<Wallet> wallets = new ArrayList<>();
         wallets.add(fundWallet) ;
         wallets.add(spotWallet);
-        walletRepo.save(fundWallet);
-        walletRepo.save(spotWallet);
+//        walletRepo.save(fundWallet);
+//        walletRepo.save(spotWallet);
         user.setWallets(wallets);
 
         userRepository.save(user);
