@@ -6,4 +6,5 @@ import org.springframework.http.ResponseEntity;
 public interface SignupService {
 
     ResponseEntity addUser(UserRequestModel userRequestModel);
+    ResponseEntity getUser(UserRequestModel userRequestModel);
 }

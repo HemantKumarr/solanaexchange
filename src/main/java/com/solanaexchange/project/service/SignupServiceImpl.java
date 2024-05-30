@@ -1,13 +1,16 @@
 package com.solanaexchange.project.service;
 
+import com.solanaexchange.project.dao.LoginHistRepo;
 import com.solanaexchange.project.dao.UserRepository;
 import com.solanaexchange.project.dao.WalletRepo;
+import com.solanaexchange.project.entity.LoginHistory;
 import com.solanaexchange.project.entity.Users;
 import com.solanaexchange.project.entity.Wallet;
 import com.solanaexchange.project.model.UserRequestModel;
 import com.solanaexchange.project.model.UserResponseModel;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,11 @@ public class SignupServiceImpl implements SignupService {
     @Autowired
     WalletRepo walletRepo;
     @Autowired
+    LoginHistRepo loginHistRepo;
+    @Autowired
     WalletService walletService;
+    @Value("${referral.points}")
+    private String referralPoints;
     private static final String FUND = "FUND";
     private static final String SPOT = "SPOT";
 
@@ -62,6 +69,52 @@ public class SignupServiceImpl implements SignupService {
         userBasicDetailMap.put("spotWalletNumber", spotWalletNumber);
         userBasicDetailMap.put("referralCode", referralCode);
         return new ResponseEntity(userBasicDetailMap, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity getUser(UserRequestModel userRequestModel) {
+        {
+            String email = userRequestModel.getEmail();
+            String password = userRequestModel.getPassword();
+            Map<String, Object> userBasicDetailMap = new LinkedHashMap<>();
+            Optional<Users> userPresent = Optional.ofNullable(userRepository.findByEmail(userRequestModel.getEmail()));
+            if(userPresent.isEmpty()){
+                userBasicDetailMap.put("status",0);
+                userBasicDetailMap.put("message","User with this email ID does not exists");
+                return new ResponseEntity<>(userBasicDetailMap,HttpStatus.CONFLICT);
+            }
+            Users u = userPresent.get();
+            if(!Objects.equals(u.getPassword(),password)){
+                userBasicDetailMap.put("status",0);
+                userBasicDetailMap.put("message","The password entered is incorrect");
+                return new ResponseEntity<>(userBasicDetailMap,HttpStatus.CONFLICT);
+            }
+
+            LoginHistory loginHist = new LoginHistory();
+            loginHist.setLoginTime(new Date().getTime());
+            loginHist.setDeviceName(userRequestModel.getDeviceName());
+            loginHist.setLocation(userRequestModel.getLocation());
+            loginHist.setIpAddr(userRequestModel.getIpAddr());
+            loginHistRepo.save(loginHist);
+
+            List<Wallet> wallets = u.getWallets();
+            String fundWalletNumber = wallets.get(0).getWalletNumber();
+            String spotWalletNumber = wallets.get(1).getWalletNumber();
+
+            Wallet wallet1 = walletRepo.findByWalletNumber(fundWalletNumber);
+            userBasicDetailMap.put("fundWalletNumberBalance",wallet1.getWalletBalance());
+
+            Wallet wallet2 = walletRepo.findByWalletNumber(spotWalletNumber);
+            userBasicDetailMap.put("spotWalletNumberBalance",wallet2.getWalletBalance());
+            userBasicDetailMap.put("referralPoints",referralPoints);
+            userBasicDetailMap.put("email", u.getEmail());
+            userBasicDetailMap.put("referralCode", u.getReferCode());
+            userBasicDetailMap.put("status", 1);
+            userBasicDetailMap.put("message", "User details fetched successfully");
+            userBasicDetailMap.put("fundWalletNumber", fundWalletNumber);
+            userBasicDetailMap.put("spotWalletNumber", spotWalletNumber);
+            return new ResponseEntity(userBasicDetailMap, HttpStatus.OK);
+        }
     }
 
     private String generateUserId(String email) {

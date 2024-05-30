@@ -1,10 +1,15 @@
 package com.solanaexchange.project.model;
 
+import lombok.Data;
+
+@Data
 public class UserRequestModel {
 
     private String email;
     private String password;
-
+private String deviceName;
+private String ipAddr;
+private String location;
     public UserRequestModel() {
         super();
     }

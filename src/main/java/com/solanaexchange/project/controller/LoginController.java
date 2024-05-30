@@ -23,7 +23,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity fetchUser(@RequestBody UserRequestModel userRequestModel){
-        return signupService.addUser(userRequestModel);
+        return signupService.getUser(userRequestModel);
 
     }
 }
