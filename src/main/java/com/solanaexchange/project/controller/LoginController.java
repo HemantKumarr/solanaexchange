@@ -8,13 +8,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 @RestController
 public class LoginController {
-
     SignupService signupService;
-
     public LoginController(SignupService signupService) {
         this.signupService = signupService;
     }
-
     @PostMapping("/signup")
     public ResponseEntity<?> addUser(@RequestBody UserRequestModel userRequestModel){
         return signupService.addUser(userRequestModel);
