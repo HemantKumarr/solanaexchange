@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface WalletRepo extends JpaRepository<Wallet,String> {
     @Query(value = "SELECT * from wallet where email = :email", nativeQuery = true)
-    Wallet findByEmail(String email);
+    List<Wallet> findByEmail(String email);
 
     @Query(value = "SELECT * from wallet where wallet_number = :walletNumber", nativeQuery = true)
     Wallet findByWalletNumber(String walletNumber);

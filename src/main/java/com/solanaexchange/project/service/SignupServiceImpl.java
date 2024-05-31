@@ -15,7 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.hibernate.id.uuid.Helper.format;
 
 @Service
 public class SignupServiceImpl implements SignupService {
@@ -57,8 +61,7 @@ public class SignupServiceImpl implements SignupService {
         List<Wallet> wallets = new ArrayList<>();
         wallets.add(fundWallet) ;
         wallets.add(spotWallet);
-//        walletRepo.save(fundWallet);
-//        walletRepo.save(spotWallet);
+
         user.setWallets(wallets);
 
         userRepository.save(user);
@@ -91,10 +94,17 @@ public class SignupServiceImpl implements SignupService {
             }
 
             LoginHistory loginHist = new LoginHistory();
-            loginHist.setLoginTime(new Date().getTime());
+
+            SimpleDateFormat formatDate = new SimpleDateFormat("dd/MM/yyyy  HH:mm:ss z");
+            Date date = new Date();
+            formatDate.setTimeZone(TimeZone.getTimeZone("IST"));
+            // print formatted date and time
+
+            loginHist.setLoginTime(formatDate.format(date));
             loginHist.setDeviceName(userRequestModel.getDeviceName());
             loginHist.setLocation(userRequestModel.getLocation());
             loginHist.setIpAddr(userRequestModel.getIpAddr());
+            loginHist.setEmail(userRequestModel.getEmail());
             loginHistRepo.save(loginHist);
 
             List<Wallet> wallets = u.getWallets();

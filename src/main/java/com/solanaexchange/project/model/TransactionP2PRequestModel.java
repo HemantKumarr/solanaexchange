@@ -3,12 +3,11 @@ package com.solanaexchange.project.model;
 import lombok.Data;
 
 @Data
-public class TransactionRequestModel {
+public class TransactionP2PRequestModel {
     private String amount;
     private String txnType;
-    private String email;
-    private String fromWalletType;
-    private String toWalletType;
+    private String fromEmail;
+    private String toEmail;
     private String currency;
 
 }
