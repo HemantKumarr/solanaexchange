@@ -28,9 +28,9 @@ public class TxnService {
         String receiver = transactionRequestModel.getToWalletType();
         Map<String,Object> map = new HashMap<>();
         Optional<List<Wallet>> walletList = Optional.ofNullable(walletRepo.findByEmail(transactionRequestModel.getEmail()));
-        if(walletList.isEmpty()){
+        if(walletList.isEmpty() || walletList.get().isEmpty() || walletList.get().size() == 0 ){
             map.put("status","0");
-            map.put("message","No wallet found for the email id");
+            map.put("message","No wallet found for the email id ");
             return map;
         }
         List<Wallet> w = walletList.get();
