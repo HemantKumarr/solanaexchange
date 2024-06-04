@@ -1,9 +1,14 @@
 package com.solanaexchange.project.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="WALLET")
+@Data
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,10 +25,11 @@ public class Wallet {
     @Column(name="WALLET_BALANCE")
     private String walletBalance;
 
-
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private Users user;
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CryptoBalances> cryptoBalances;
     public Wallet() {
     }
 
@@ -32,54 +38,6 @@ public class Wallet {
         this.walletNumber = walletNumber;
         this.walletTYPE = walletTYPE;
         this.walletBalance = walletBalance;
-        this.user = user;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getWalletNumber() {
-        return walletNumber;
-    }
-
-    public void setWalletNumber(String walletNumber) {
-        this.walletNumber = walletNumber;
-    }
-
-    public String getWalletTYPE() {
-        return walletTYPE;
-    }
-
-    public void setWalletTYPE(String walletTYPE) {
-        this.walletTYPE = walletTYPE;
-    }
-
-    public String getWalletBalance() {
-        return walletBalance;
-    }
-
-    public void setWalletBalance(String walletBalance) {
-        this.walletBalance = walletBalance;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
         this.user = user;
     }
 

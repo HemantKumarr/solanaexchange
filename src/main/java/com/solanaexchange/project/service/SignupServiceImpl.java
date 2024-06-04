@@ -1,8 +1,10 @@
 package com.solanaexchange.project.service;
 
+import com.solanaexchange.project.dao.CryptoBalancesRepo;
 import com.solanaexchange.project.dao.LoginHistRepo;
 import com.solanaexchange.project.dao.UserRepository;
 import com.solanaexchange.project.dao.WalletRepo;
+import com.solanaexchange.project.entity.CryptoBalances;
 import com.solanaexchange.project.entity.LoginHistory;
 import com.solanaexchange.project.entity.Users;
 import com.solanaexchange.project.entity.Wallet;
@@ -31,10 +33,13 @@ public class SignupServiceImpl implements SignupService {
     LoginHistRepo loginHistRepo;
     @Autowired
     WalletService walletService;
+    @Autowired
+    CryptoBalancesRepo cryptoBalancesRepo;
     @Value("${referral.points}")
     private String referralPoints;
     private static final String FUND = "FUND";
     private static final String SPOT = "SPOT";
+    private static final String[] cryptocurrency = {"BTC","USDT","PLS","WBTC","ETH","SOL","LUNA","DOGE","ALGO","FTM"};
 
     @Override
     public ResponseEntity<?> addUser(UserRequestModel userRequestModel) {
@@ -58,6 +63,31 @@ public class SignupServiceImpl implements SignupService {
         Wallet fundWallet = new Wallet(email,fundWalletNumber,FUND,"0",user);
         Wallet spotWallet = new Wallet(email,spotWalletNumber,SPOT,"0",user);
 
+        List<CryptoBalances> cryptoFundBalancesList = new ArrayList<>(1);
+        List<CryptoBalances> cryptoSpotBalancesList=new ArrayList<>(1);
+        for (String s: cryptocurrency) {
+        CryptoBalances cryptoBalances = new CryptoBalances();
+        cryptoBalances.setEmail(email);
+        cryptoBalances.setCurrency(s);
+        cryptoBalances.setFundAvlBal("0");
+        cryptoBalances.setFundLockBal("0");
+        cryptoBalances.setFundTotalBal("0");
+        cryptoBalances.setWalletNumber(fundWalletNumber);
+        cryptoBalances.setWalletType(FUND);
+        cryptoFundBalancesList.add(cryptoBalances);
+        }
+        fundWallet.setCryptoBalances(cryptoFundBalancesList);
+        for (String s: cryptocurrency) {
+            CryptoBalances cryptoBalances = new CryptoBalances();
+            cryptoBalances.setEmail(email);
+            cryptoBalances.setCurrency(s);
+            cryptoBalances.setSpotBal("0");
+            cryptoBalances.setWalletNumber(spotWalletNumber);
+            cryptoBalances.setWalletType(SPOT);
+            cryptoSpotBalancesList.add(cryptoBalances);
+        }
+        spotWallet.setCryptoBalances(cryptoSpotBalancesList);
+
         List<Wallet> wallets = new ArrayList<>();
         wallets.add(fundWallet) ;
         wallets.add(spotWallet);
@@ -71,6 +101,7 @@ public class SignupServiceImpl implements SignupService {
         userBasicDetailMap.put("fundWalletNumber", fundWalletNumber);
         userBasicDetailMap.put("spotWalletNumber", spotWalletNumber);
         userBasicDetailMap.put("referralCode", referralCode);
+
         return new ResponseEntity(userBasicDetailMap, HttpStatus.OK);
     }
 
@@ -80,7 +111,7 @@ public class SignupServiceImpl implements SignupService {
             String email = userRequestModel.getEmail();
             String password = userRequestModel.getPassword();
             Map<String, Object> userBasicDetailMap = new LinkedHashMap<>();
-            Optional<Users> userPresent = Optional.ofNullable(userRepository.findByEmail(userRequestModel.getEmail()));
+            Optional<Users> userPresent = Optional.ofNullable(userRepository.findByEmail(email));
             if(userPresent.isEmpty()){
                 userBasicDetailMap.put("status",0);
                 userBasicDetailMap.put("message","User with this email ID does not exists");
@@ -111,6 +142,9 @@ public class SignupServiceImpl implements SignupService {
             String fundWalletNumber = wallets.get(0).getWalletNumber();
             String spotWalletNumber = wallets.get(1).getWalletNumber();
 
+            List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,"FUND");
+            List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,"SPOT");
+
             Wallet wallet1 = walletRepo.findByWalletNumber(fundWalletNumber);
             userBasicDetailMap.put("fundWalletNumberBalance",wallet1.getWalletBalance());
 
@@ -123,6 +157,9 @@ public class SignupServiceImpl implements SignupService {
             userBasicDetailMap.put("message", "User details fetched successfully");
             userBasicDetailMap.put("fundWalletNumber", fundWalletNumber);
             userBasicDetailMap.put("spotWalletNumber", spotWalletNumber);
+
+            userBasicDetailMap.put("fundBalancesList", fundBalancesList);
+            userBasicDetailMap.put("spotBalancesList",spotBalancesList);
             return new ResponseEntity(userBasicDetailMap, HttpStatus.OK);
         }
     }

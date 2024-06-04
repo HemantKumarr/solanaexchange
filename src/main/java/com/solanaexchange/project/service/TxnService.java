@@ -1,12 +1,15 @@
 package com.solanaexchange.project.service;
 
+import com.solanaexchange.project.dao.CryptoBalancesRepo;
 import com.solanaexchange.project.dao.TxnInterWalletRepo;
 import com.solanaexchange.project.dao.WalletRepo;
+import com.solanaexchange.project.entity.CryptoBalances;
 import com.solanaexchange.project.entity.TxnInterWallet;
 import com.solanaexchange.project.entity.Wallet;
 import com.solanaexchange.project.model.TransactionP2PRequestModel;
 import com.solanaexchange.project.model.TransactionRequestModel;
 import com.solanaexchange.project.model.TxnHistEmail;
+import com.solanaexchange.project.model.TxnStakingRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,8 @@ public class TxnService {
     WalletRepo walletRepo;
     @Autowired
     TxnInterWalletRepo txnInterWalletRepo;
+    @Autowired
+    CryptoBalancesRepo cryptoBalancesRepo;
     public Map<String,Object> performTxn(TransactionRequestModel transactionRequestModel){
         int amt = Integer.parseInt(transactionRequestModel.getAmount());
         String sender = transactionRequestModel.getFromWalletType();
@@ -95,4 +100,24 @@ public class TxnService {
 
     }
 
+    public Map<String, Object> performStaking(TxnStakingRequestModel txnStakingRequestModel) {
+        CryptoBalances cryptoBalances = cryptoBalancesRepo.findByEmailAndWallettypeAndCurrency(txnStakingRequestModel.getEmail(),"FUND",txnStakingRequestModel.getCurrency());
+
+        Map<String, Object> stakemap = new HashMap<>();
+        if(Integer.parseInt(txnStakingRequestModel.getStakeAmount()) > Integer.parseInt(cryptoBalances.getFundAvlBal())){
+            stakemap.put("status",0);
+            stakemap.put("message","The available amount is less than stake amount");
+            return stakemap;
+        }
+        Integer fundAvlBal = Integer.parseInt(cryptoBalances.getFundAvlBal()) - Integer.parseInt(txnStakingRequestModel.getStakeAmount());
+        Integer fundStakeBal = Integer.parseInt(cryptoBalances.getFundLockBal()) + Integer.parseInt(txnStakingRequestModel.getStakeAmount());
+
+        cryptoBalances.setFundAvlBal(fundAvlBal.toString());
+        cryptoBalances.setFundLockBal(fundStakeBal.toString());
+
+        cryptoBalancesRepo.save(cryptoBalances);
+        stakemap.put("status",1);
+        stakemap.put("message","The amount has been successfully staked");
+        return stakemap;
+    }
 }

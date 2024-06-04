@@ -3,6 +3,7 @@ package com.solanaexchange.project.controller;
 import com.solanaexchange.project.model.TransactionP2PRequestModel;
 import com.solanaexchange.project.model.TransactionRequestModel;
 import com.solanaexchange.project.model.TxnHistEmail;
+import com.solanaexchange.project.model.TxnStakingRequestModel;
 import com.solanaexchange.project.service.TxnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,10 @@ public class TxnController {
         return txnService.performP2PTxn(transactionP2PRequestModel);
     }
 
+    @PostMapping("/staking")
+    public Map<String,Object> performStaking(@RequestBody TxnStakingRequestModel txnStakingRequestModel){
+        return txnService.performStaking(txnStakingRequestModel);
+    }
     @PostMapping("/interwallethist")
     public Map<String,Object> interwallethist(@RequestBody TxnHistEmail txnHistEmail){
         return txnService.interWalletHist(txnHistEmail);
