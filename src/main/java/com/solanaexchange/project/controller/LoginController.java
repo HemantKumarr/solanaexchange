@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user")
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173")
 public class LoginController {
     SignupService signupService;
     public LoginController(SignupService signupService) {

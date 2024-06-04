@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RequestMapping("/txn")
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TxnController {
     @Autowired
     TxnService txnService;
