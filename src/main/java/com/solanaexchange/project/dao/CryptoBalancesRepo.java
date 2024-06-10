@@ -12,6 +12,8 @@ public interface CryptoBalancesRepo extends JpaRepository<CryptoBalances,Integer
     @Query(value = "SELECT * from crypto_balance where email = :email and wallet_type=:walletType and currency=:currency", nativeQuery = true)
     CryptoBalances findByEmailAndWallettypeAndCurrency(String email, String walletType, String currency);
 
+    @Query(value = "SELECT * from crypto_balance where email = :email", nativeQuery = true)
+    CryptoBalances[] findByEmail(String email);
 
     @Query(value = "update crypto_balance set where email = :email and wallet_type=:walletType and currency=:currency", nativeQuery = true)
     CryptoBalances updateByEmailAndWallettypeAndCurrency(String email, String walletType, String currency);
