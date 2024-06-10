@@ -8,6 +8,7 @@ import com.solanaexchange.project.entity.CryptoBalances;
 import com.solanaexchange.project.entity.LoginHistory;
 import com.solanaexchange.project.entity.Users;
 import com.solanaexchange.project.entity.Wallet;
+import com.solanaexchange.project.model.TxnHistEmail;
 import com.solanaexchange.project.model.UserRequestModel;
 import com.solanaexchange.project.model.UserResponseModel;
 import org.hibernate.SessionFactory;
@@ -162,6 +163,16 @@ public class SignupServiceImpl implements SignupService {
             userBasicDetailMap.put("spotBalancesList",spotBalancesList);
             return new ResponseEntity(userBasicDetailMap, HttpStatus.OK);
         }
+    }
+
+    @Override
+    public ResponseEntity getLoginHist(TxnHistEmail txnHistEmail) {
+        Map<String, Object> userBasicDetailMap = new LinkedHashMap<>();
+        LoginHistory[] loginHist = loginHistRepo.findByEmail(txnHistEmail.getEmail());
+        userBasicDetailMap.put("loginHistory",loginHist);
+        return new ResponseEntity(userBasicDetailMap,HttpStatus.OK);
+
+
     }
 
     private String generateUserId(String email) {
