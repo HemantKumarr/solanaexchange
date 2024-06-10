@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LoginHistRepo extends JpaRepository<LoginHistory,String> {
-    @Query(value = "SELECT * from LOGIN_HISTORY where email = :email", nativeQuery = true)
+    @Query(value = "SELECT * from login_history where email = :email", nativeQuery = true)
     LoginHistory[] findByEmail(String email);
 
 
