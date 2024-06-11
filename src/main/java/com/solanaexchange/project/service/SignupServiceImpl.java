@@ -37,7 +37,7 @@ public class SignupServiceImpl implements SignupService {
     @Autowired
     CryptoBalancesRepo cryptoBalancesRepo;
     @Value("${referral.points}")
-    private String referralPoints;
+    private int referralPoints;
     private static final String FUND = "FUND";
     private static final String SPOT = "SPOT";
     private static final String[] cryptocurrency = {"BTC","USDT","PLS","WBTC","ETH","SOL","LUNA","DOGE","ALGO","FTM"};
@@ -46,6 +46,7 @@ public class SignupServiceImpl implements SignupService {
     public ResponseEntity<?> addUser(UserRequestModel userRequestModel) {
         String email = userRequestModel.getEmail();
         String password = userRequestModel.getPassword();
+        String passedReferralCode = userRequestModel.getReferralCode();
         Map<String, Object> userBasicDetailMap = new LinkedHashMap<>();
         Optional<Users> userPresent = Optional.ofNullable(userRepository.findByEmail(userRequestModel.getEmail()));
         if(userPresent.isPresent()){
@@ -53,13 +54,22 @@ public class SignupServiceImpl implements SignupService {
             userBasicDetailMap.put("message","User with this email ID already exists");
             return new ResponseEntity<>(userBasicDetailMap,HttpStatus.CONFLICT);
         }
-
         String userId = generateUserId(email);
         String referralCode = generateReferralCode();
         String fundWalletNumber = walletService.generateWalletNumbers(email).get(0);
         String spotWalletNumber = walletService.generateWalletNumbers(email).get(1);
-
-        Users user = new Users(userId,email,password,referralCode,0,0);
+    if(!passedReferralCode.isEmpty() ) {
+        Optional<Users> userPresentByReferCode = Optional.ofNullable(userRepository.findByReferralCode(userRequestModel.getReferralCode()));
+        if(userPresentByReferCode.isEmpty()){
+            userBasicDetailMap.put("status",0);
+            userBasicDetailMap.put("message","User with this referral code does not exist");
+            return new ResponseEntity<>(userBasicDetailMap,HttpStatus.NOT_FOUND);
+        }
+        userPresentByReferCode.get().setReferralPoints((int) (userPresentByReferCode.get().getReferralPoints() + 50));
+        userPresentByReferCode.get().setNoOfRefers((int) (userPresentByReferCode.get().getNoOfRefers() + 1));
+        userRepository.save(userPresentByReferCode.get());
+    }
+        Users user = new Users(userId,email,password,referralCode,referralPoints,0);
 
         Wallet fundWallet = new Wallet(email,fundWalletNumber,FUND,"0",user);
         Wallet spotWallet = new Wallet(email,spotWalletNumber,SPOT,"0",user);

@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<Users, Integer> {
     @Query(value = "SELECT * from users where email = :email", nativeQuery = true)
     Users findByEmail(String email);
+
+    @Query(value = "SELECT * from users where refer_code = :referralCode", nativeQuery = true)
+    Users findByReferralCode(String referralCode);
 }
