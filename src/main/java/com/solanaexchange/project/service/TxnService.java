@@ -10,6 +10,8 @@ import com.solanaexchange.project.model.TransactionP2PRequestModel;
 import com.solanaexchange.project.model.TransactionRequestModel;
 import com.solanaexchange.project.model.TxnHistEmail;
 import com.solanaexchange.project.model.TxnStakingRequestModel;
+import jakarta.transaction.Transactional;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,53 +29,66 @@ public class TxnService {
     TxnInterWalletRepo txnInterWalletRepo;
     @Autowired
     CryptoBalancesRepo cryptoBalancesRepo;
-    public Map<String,Object> performTxn(TransactionRequestModel transactionRequestModel){
-        int amt = Integer.parseInt(transactionRequestModel.getAmount());
-        String sender = transactionRequestModel.getFromWalletType();
-        String receiver = transactionRequestModel.getToWalletType();
-        Map<String,Object> map = new HashMap<>();
-        Optional<List<Wallet>> walletList = Optional.ofNullable(walletRepo.findByEmail(transactionRequestModel.getEmail()));
-        if(walletList.isEmpty() || walletList.get().isEmpty() || walletList.get().size() == 0 ){
-            map.put("status","0");
-            map.put("message","No wallet found for the email id ");
-            return map;
-        }
-        List<Wallet> w = walletList.get();
-        Wallet fundWallet = w.get(0);
-        Wallet spotWallet = w.get(1);
-        Integer fundWalletBal=0, spotWalletBal=0;
-        if(Integer.parseInt(fundWallet.getWalletBalance())<amt){
-            map.put("status","0");
-            map.put("message","Not enough balance to perform this transaction");
-            return map;
-        }
-        if(transactionRequestModel.getFromWalletType().equals("FUND") && transactionRequestModel.getToWalletType().equals("SPOT") ){
-            if(Integer.parseInt(fundWallet.getWalletBalance())<amt){
-                map.put("status","0");
-                map.put("message","Not enough balance to perform this transaction");
-                return map;
-            }
-             fundWalletBal = Integer.parseInt(fundWallet.getWalletBalance())- amt;
-             spotWalletBal = Integer.parseInt(spotWallet.getWalletBalance())+ amt;
-        }
-        if(transactionRequestModel.getFromWalletType().equals("SPOT") && transactionRequestModel.getToWalletType().equals("FUND")){
-            if(Integer.parseInt(spotWallet.getWalletBalance())<amt){
-                map.put("status","0");
-                map.put("message","Not enough balance to perform this transaction");
-                return map;
-            }
-             fundWalletBal = Integer.parseInt(fundWallet.getWalletBalance()) + amt;
-             spotWalletBal = Integer.parseInt(spotWallet.getWalletBalance()) - amt;
-        }
-        fundWallet.setWalletBalance(fundWalletBal.toString());
-        spotWallet.setWalletBalance(spotWalletBal.toString());
 
-        walletRepo.save(fundWallet);
-        walletRepo.save(spotWallet);
-        TxnInterWallet txnInterWallet = new TxnInterWallet(transactionRequestModel.getEmail(),transactionRequestModel.getAmount(),transactionRequestModel.getFromWalletType(),transactionRequestModel.getToWalletType(),transactionRequestModel.getCurrency());
-        txnInterWalletRepo.save(txnInterWallet);
-        map.put("txnDetails",txnInterWallet);
+    @Transactional
+    public Map<String,Object> performTxn(TransactionRequestModel transactionRequestModel) {
+        int amt = Integer.parseInt(transactionRequestModel.getAmount());
+        Map<String, Object> map = new HashMap<>();
+        if (transactionRequestModel.getFromWalletType().equals("FUND") && transactionRequestModel.getToWalletType().equals("SPOT")) {
+            Optional<CryptoBalances> fundWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency()));
+            Optional<CryptoBalances> spotWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency()));
+            if (fundWallet.isEmpty()) {
+                map.put("status", "0");
+                map.put("message", "No wallet found for the fundWallet email");
                 return map;
+            }
+            if (spotWallet.isEmpty()) {
+                map.put("status", "0");
+                map.put("message", "No wallet found for the spotWallet email");
+                return map;
+            }
+            Integer fundWalletBal = 0, spotWalletBal = 0;
+            if (Integer.parseInt(fundWallet.get().getFundAvlBal()) < amt) {
+                map.put("status", "0");
+                map.put("message", "Not enough balance to perform this transaction");
+                return map;
+            }
+            fundWalletBal = Integer.parseInt(fundWallet.get().getFundAvlBal()) - amt;
+            spotWalletBal = Integer.parseInt(spotWallet.get().getSpotBal()) + amt;
+
+            cryptoBalancesRepo.updateFundBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency(), fundWalletBal.toString());
+            cryptoBalancesRepo.updateSpotBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency(), spotWalletBal.toString());
+
+        }
+        else if (transactionRequestModel.getFromWalletType().equals("SPOT") && transactionRequestModel.getToWalletType().equals("FUND")) {
+            Optional<CryptoBalances> spotWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency()));
+            Optional<CryptoBalances> fundWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency()));
+            Integer fundWalletBal = 0, spotWalletBal = 0;
+            if (fundWallet.isEmpty()) {
+                map.put("status", "0");
+                map.put("message", "No wallet found for the fundWallet email");
+                return map;
+            }
+            if (spotWallet.isEmpty()) {
+                map.put("status", "0");
+                map.put("message", "No wallet found for the spotWallet email");
+                return map;
+            }
+            if (Integer.parseInt(spotWallet.get().getSpotBal()) < amt) {
+                map.put("status", "0");
+                map.put("message", "Not enough balance to perform this transaction");
+                return map;
+            }
+
+            spotWalletBal = Integer.parseInt(spotWallet.get().getSpotBal()) - amt;
+            fundWalletBal = Integer.parseInt(fundWallet.get().getFundAvlBal()) + amt;
+
+            cryptoBalancesRepo.updateFundBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency(), fundWalletBal.toString());
+            cryptoBalancesRepo.updateSpotBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency(), spotWalletBal.toString());
+        }
+
+        map.put("txnDetails", "Txn Success");
+        return map;
     }
 
     public Map<String, Object> performP2PTxn(TransactionP2PRequestModel transactionP2PRequestModel) {
