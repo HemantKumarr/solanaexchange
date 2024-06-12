@@ -65,7 +65,7 @@ public class SignupServiceImpl implements SignupService {
             userBasicDetailMap.put("message","User with this referral code does not exist");
             return new ResponseEntity<>(userBasicDetailMap,HttpStatus.NOT_FOUND);
         }
-        userPresentByReferCode.get().setReferralPoints((int) (userPresentByReferCode.get().getReferralPoints() + 50));
+        userPresentByReferCode.get().setReferralPoints((int) (userPresentByReferCode.get().getReferralPoints() + 1));
         userPresentByReferCode.get().setNoOfRefers((int) (userPresentByReferCode.get().getNoOfRefers() + 1));
         userRepository.save(userPresentByReferCode.get());
     }
@@ -80,7 +80,9 @@ public class SignupServiceImpl implements SignupService {
         CryptoBalances cryptoBalances = new CryptoBalances();
         cryptoBalances.setEmail(email);
         cryptoBalances.setCurrency(s);
-        cryptoBalances.setFundAvlBal("0");
+        if(s.equals("BTC")){
+        cryptoBalances.setFundAvlBal("1");}
+        else { cryptoBalances.setFundAvlBal("0");}
         cryptoBalances.setFundLockBal("0");
         cryptoBalances.setFundTotalBal("0");
         cryptoBalances.setWalletNumber(fundWalletNumber);
