@@ -155,14 +155,14 @@ public class SignupServiceImpl implements SignupService {
             String fundWalletNumber = wallets.get(0).getWalletNumber();
             String spotWalletNumber = wallets.get(1).getWalletNumber();
 
-            List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,"FUND");
-            List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,"SPOT");
+            List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,FUND);
+            List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(email,SPOT);
 
-            Wallet wallet1 = walletRepo.findByWalletNumber(fundWalletNumber);
-            userBasicDetailMap.put("fundWalletNumberBalance",wallet1.getWalletBalance());
+            int fundWalletBal = cryptoBalancesRepo.findTotalFundBal(email,FUND);
+            userBasicDetailMap.put("fundWalletNumberBalance",fundWalletBal);
+            int spotWalletBal = cryptoBalancesRepo.findTotalSpotBal(email,SPOT);
+            userBasicDetailMap.put("spotWalletNumberBalance",spotWalletBal);
 
-            Wallet wallet2 = walletRepo.findByWalletNumber(spotWalletNumber);
-            userBasicDetailMap.put("spotWalletNumberBalance",wallet2.getWalletBalance());
             userBasicDetailMap.put("referralPoints",referralPoints);
             userBasicDetailMap.put("email", u.getEmail());
             userBasicDetailMap.put("referralCode", u.getReferCode());
