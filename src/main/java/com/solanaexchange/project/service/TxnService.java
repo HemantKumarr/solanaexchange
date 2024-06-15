@@ -135,4 +135,24 @@ public class TxnService {
         stakemap.put("message","The amount has been successfully staked");
         return stakemap;
     }
+    @Transactional
+    public Map<String, Object> performUnstaking(TxnStakingRequestModel txnStakingRequestModel) {
+        CryptoBalances cryptoBalances = cryptoBalancesRepo.findByEmailAndWallettypeAndCurrency(txnStakingRequestModel.getEmail(),"FUND",txnStakingRequestModel.getCurrency());
+
+        Map<String, Object> stakemap = new HashMap<>();
+        if(Integer.parseInt(txnStakingRequestModel.getStakeAmount()) > Integer.parseInt(cryptoBalances.getFundLockBal())){
+            stakemap.put("status",0);
+            stakemap.put("message","Stake amount greater than lock amount");
+            return stakemap;
+        }
+        Integer fundAvlBal = Integer.parseInt(cryptoBalances.getFundAvlBal()) + Integer.parseInt(txnStakingRequestModel.getStakeAmount());
+
+        cryptoBalances.setFundLockBal("0");
+
+        cryptoBalancesRepo.updateFundBalEmailWallettypeAndCurrency(txnStakingRequestModel.getEmail(),"FUND",txnStakingRequestModel.getCurrency(),fundAvlBal.toString());
+        stakemap.put("status",1);
+        stakemap.put("message","The amount has been successfully staked");
+        return stakemap;
+    }
+
 }

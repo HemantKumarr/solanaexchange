@@ -30,6 +30,10 @@ public class TxnController {
     public Map<String,Object> performStaking(@RequestBody TxnStakingRequestModel txnStakingRequestModel){
         return txnService.performStaking(txnStakingRequestModel);
     }
+    @PostMapping("/unstaking")
+    public Map<String,Object> performUnstaking(@RequestBody TxnStakingRequestModel txnStakingRequestModel){
+        return txnService.performUnstaking(txnStakingRequestModel);
+    }
     @PostMapping("/interwallethist")
     public Map<String,Object> interwallethist(@RequestBody TxnHistEmail txnHistEmail){
         return txnService.interWalletHist(txnHistEmail);
