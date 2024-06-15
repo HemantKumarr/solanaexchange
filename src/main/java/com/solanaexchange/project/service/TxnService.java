@@ -64,6 +64,12 @@ public class TxnService {
             map.put("fundBalancesList", fundBalancesList);
             map.put("spotBalancesList",spotBalancesList);
 
+            int fundWalletBall = cryptoBalancesRepo.findTotalFundBal(transactionRequestModel.getEmail(),"FUND");
+            map.put("fundWalletNumberBalance",fundWalletBall);
+            int spotWalletBall = cryptoBalancesRepo.findTotalSpotBal(transactionRequestModel.getEmail(),"SPOT");
+            map.put("spotWalletNumberBalance",spotWalletBall);
+
+
         }
         else if (transactionRequestModel.getFromWalletType().equals("SPOT") && transactionRequestModel.getToWalletType().equals("FUND")) {
             Optional<CryptoBalances> spotWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency()));
@@ -95,6 +101,12 @@ public class TxnService {
             List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(transactionRequestModel.getEmail(),"SPOT");
             map.put("fundBalancesList", fundBalancesList);
             map.put("spotBalancesList",spotBalancesList);
+
+            int fundWalletBall = cryptoBalancesRepo.findTotalFundBal(transactionRequestModel.getEmail(),"FUND");
+            map.put("fundWalletNumberBalance",fundWalletBall);
+            int spotWalletBall = cryptoBalancesRepo.findTotalSpotBal(transactionRequestModel.getEmail(),"SPOT");
+            map.put("spotWalletNumberBalance",spotWalletBall);
+
 
         }
 
@@ -142,6 +154,17 @@ public class TxnService {
         cryptoBalances.setFundLockBal(fundStakeBal.toString());
 
         cryptoBalancesRepo.save(cryptoBalances);
+
+        List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(txnStakingRequestModel.getEmail(),"FUND");
+        List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(txnStakingRequestModel.getEmail(),"SPOT");
+        stakemap.put("fundBalancesList", fundBalancesList);
+        stakemap.put("spotBalancesList",spotBalancesList);
+
+        int fundWalletBal = cryptoBalancesRepo.findTotalFundBal(txnStakingRequestModel.getEmail(),"FUND");
+        stakemap.put("fundWalletNumberBalance",fundWalletBal);
+        int spotWalletBal = cryptoBalancesRepo.findTotalSpotBal(txnStakingRequestModel.getEmail(),"SPOT");
+        stakemap.put("spotWalletNumberBalance",spotWalletBal);
+
         stakemap.put("status",1);
         stakemap.put("message","The amount has been successfully staked");
         return stakemap;
@@ -163,6 +186,15 @@ public class TxnService {
         cryptoBalancesRepo.updateFundBalEmailWallettypeAndCurrency(txnStakingRequestModel.getEmail(),"FUND",txnStakingRequestModel.getCurrency(),fundAvlBal.toString());
         stakemap.put("status",1);
         stakemap.put("message","The amount has been successfully staked");
+        List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(txnStakingRequestModel.getEmail(),"FUND");
+        List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(txnStakingRequestModel.getEmail(),"SPOT");
+        stakemap.put("fundBalancesList", fundBalancesList);
+        stakemap.put("spotBalancesList",spotBalancesList);
+
+        int fundWalletBal = cryptoBalancesRepo.findTotalFundBal(txnStakingRequestModel.getEmail(),"FUND");
+        stakemap.put("fundWalletNumberBalance",fundWalletBal);
+        int spotWalletBal = cryptoBalancesRepo.findTotalSpotBal(txnStakingRequestModel.getEmail(),"SPOT");
+        stakemap.put("spotWalletNumberBalance",spotWalletBal);
         return stakemap;
     }
 
