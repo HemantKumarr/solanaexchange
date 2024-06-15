@@ -59,6 +59,11 @@ public class TxnService {
             cryptoBalancesRepo.updateFundBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency(), fundWalletBal.toString());
             cryptoBalancesRepo.updateSpotBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency(), spotWalletBal.toString());
 
+            List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(transactionRequestModel.getEmail(),"FUND");
+            List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(transactionRequestModel.getEmail(),"SPOT");
+            map.put("fundBalancesList", fundBalancesList);
+            map.put("spotBalancesList",spotBalancesList);
+
         }
         else if (transactionRequestModel.getFromWalletType().equals("SPOT") && transactionRequestModel.getToWalletType().equals("FUND")) {
             Optional<CryptoBalances> spotWallet = Optional.ofNullable(cryptoBalancesRepo.findEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency()));
@@ -85,6 +90,12 @@ public class TxnService {
 
             cryptoBalancesRepo.updateFundBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getToWalletType(), transactionRequestModel.getCurrency(), fundWalletBal.toString());
             cryptoBalancesRepo.updateSpotBalEmailAndWallettypeAndCurrency(transactionRequestModel.getEmail(), transactionRequestModel.getFromWalletType(), transactionRequestModel.getCurrency(), spotWalletBal.toString());
+
+            List<CryptoBalances> fundBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(transactionRequestModel.getEmail(),"FUND");
+            List<CryptoBalances> spotBalancesList = cryptoBalancesRepo.findByEmailAndWallettype(transactionRequestModel.getEmail(),"SPOT");
+            map.put("fundBalancesList", fundBalancesList);
+            map.put("spotBalancesList",spotBalancesList);
+
         }
 
         map.put("txnDetails", "Txn Success");
