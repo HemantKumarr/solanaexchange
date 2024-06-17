@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RequestMapping("/txn")
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://6670702b559a9b11e1947344--reliable-puppy-65afe5.netlify.app/")
 public class TxnController {
     @Autowired
     TxnService txnService;
